@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="keywords" content="反向ajax,comet,java,推送">
+<title>html socket</title>
+<style type="text/css">
+html, body {
+	height: 100%;
+	background-color: #e7e8eb;
+	line-height: 30px;
+}
+
+body, ul, li {
+	margin: 0;
+	padding: 0;
+}
+
+table {
+	border: 1px solid #B1CDE3;
+	border-collapse: collapse;
+	line-height: 20px;
+	width: 600px;
+}
+
+td, th {
+	border: 1px solid #B1CDE3;
+	padding: 3px 3px 3px 8px;
+	color: #4f6b72;
+	font-size: 12px;
+	background: #fff;
+}
+
+ol, ul, li {
+	list-style: none
+}
+
+a {
+	color: white;
+	text-decoration: none
+}
+
+a:hover {
+	background: #009
+}
+
+ul#nav {
+	width: 100%;
+	height: 60px;
+	background: #00A2CA;
+	margin: 0 auto;
+}
+
+ul#nav li {
+	display: inline;
+	height: 60px
+}
+
+ul#nav li a {
+	padding: 0 20px;
+	height: 60px;
+	line-height: 60px;
+	font-size: 18px
+}
+
+.logo {
+	margin-left: 50px;
+	color: white;
+	font-size: 25px;
+	font-weight: bold;
+}
+
+.content {
+	width: 70%;
+	min-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 55px;
+	margin-top: 5px;
+	padding: 5px 20px;
+	border: 2px solid #d9dadc;
+	background-color: white;
+}
+
+.content a {
+	color: red;
+}
+
+.deomcode {
+	background-color: #4f6b72;
+	width: 99%;
+	color: white;
+	height: 520px;
+}
+
+.footer {
+	background-color: #00A2CA;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 45px;
+	line-height: 45px;
+	text-align: center;
+	font-size: 18px;
+	font-weight: bold;
+}
+</style>
+</head>
+<body>
+	<ul id="nav">
+		<li class="logo">Html Socket</li>
+		<li><a href="#">首页</a></li>
+		<li><a href="#api">API</a></li>
+		<li><a href="#demo">Demo</a></li>
+		<li><a href="https://github.com/coderczp/HtmlSocket.git">Code</a></li>
+	</ul>
+	<div class="content">
+		<h4>HtmlSocket是一个反向Ajax框架,支持主流浏览器:Chrome IE5.5+ Firefox Safari
+			Opera</h4>
+		<hr>
+		<p>常见的反向Ajax方案及其优缺点:</p>
+		<ul>
+			<li>
+				<p>
+					1、FlashSocket<br>
+					&nbsp;&nbsp;优点:FlashSocket和websocket都是基于流的方式传输数据,但FlashSocket不需要对传输的数据编解码,<br>
+					&nbsp;&nbsp;所以效率比websocket高,并且Flash可以很方便与JavaScript交互.国内的各种页游足以证明Flash很高效。<br>
+					&nbsp;&nbsp;缺点:需要安装插件;移动设备支持不好,目前已被Adobe抛弃。
+				</p>
+			</li>
+			<li>
+				<p>
+					2、WebSocket<br>
+					&nbsp;&nbsp;优点:无需插件支持,基于流传输,编程简单,主流浏览器公司都在推,是今后的发展趋势<br>
+					&nbsp;&nbsp;缺点:规范还不稳定,老版本的浏览器不支持。
+				</p>
+			</li>
+			<li>
+				<p>
+					3、LongPolling<br> &nbsp;&nbsp;优点:前端实现简单;几乎兼容目前所有在用的浏览器<br>
+					&nbsp;&nbsp;缺点:后端需要特殊处理:挂起连接,连接状态管理较复杂
+				</p>
+			</li>
+			<li>
+				<p>
+					4、LongConnect<br> &nbsp;&nbsp;优点:基于流传输,效率可以媲美flash方式<br>
+					&nbsp;&nbsp;缺点:数据传输可能不完整,前端需要特殊处理;不是所有浏览器都支持,后端同样需要挂起连接
+				</p>
+			</li>
+			<li>基于定时轮询和JavaApplet的方式没多大意义,在此不予分析</li>
+		</ul>
+		<br> 接下来我们看看以下两组数据:
+		<hr>
+		<table>
+			<tr>
+				<th>浏览器</th>
+				<th>支持websocket版本</th>
+			</tr>
+			<tr>
+				<td>Chrome</td>
+				<td>Supported in version 4+</td>
+			</tr>
+			<tr>
+				<td>Firefox</td>
+				<td>Supported in version 4+</td>
+			</tr>
+			<tr>
+				<td>Internet Explorer</td>
+				<td>Supported in version 10+</td>
+			</tr>
+			<tr>
+				<td>Opera</td>
+				<td>Supported in version 10+</td>
+			</tr>
+			<tr>
+				<td>Safari</td>
+				<td>Supported in version 5+</td>
+			</tr>
+		</table>
+		<br>
+		<table>
+			<tr>
+				<th>浏览器</th>
+				<th>市场份额</th>
+			</tr>
+			<tr>
+				<td>IE8</td>
+				<td>20.89%</td>
+			</tr>
+			<tr>
+				<td>IE11</td>
+				<td>17.03%</td>
+			</tr>
+			<tr>
+				<td>IE9</td>
+				<td>9.05%</td>
+			</tr>
+			<tr>
+				<td>Chrome34</td>
+				<td>8.81%</td>
+			</tr>
+			<tr>
+				<td>FireFox29</td>
+				<td>8.48%</td>
+			</tr>
+			<tr>
+				<td>IE10</td>
+				<td>6.77%</td>
+			</tr>
+			<tr>
+				<td>Chrome35</td>
+				<td>3.64%</td>
+			</tr>
+			<tr>
+				<td>Firefox28</td>
+				<td>4.07%</td>
+			</tr>
+			<tr>
+				<td>IE6</td>
+				<td>3.55%</td>
+			</tr>
+			<tr>
+				<td>Safari7</td>
+				<td>2.94%</td>
+			</tr>
+		</table>
+		<hr>
+		透过以上数据我们可以看到,目前还有很大一部分浏览器不支持Websocket。而HtmlSocket能根据浏览器自动选择传<br>
+		输方式,并且支持自动重连.相比其他类似框架,HtmlSocket拥有一套编解码流程,开发者只需要设定消息的编解码逻<br>
+		辑,即可快速开发一套推送系统。后端采用java开发,连接状态管理,点对点消息转发,群组消息转发,广播消息等功能<br>
+		均已封装,无需依赖其他组件,可以方便嵌入到任何Java应用,集成到应用时只需要定制自己的消息格式即可,下个版本<br>
+		将支持跨语言,可以很方便和PHP Python C#等结合使用<br>
+
+		<hr>
+		<strong id="api">API</strong><br>客户端提供两个接口:
+		<pre>
+         1. HtmlSockect.Settings:设置连接参数
+           ==>new HtmlSockect.Settings('url', 'id','topic');
+             =>url[url]:提供推送的url地址,如:http://localhost:8877/
+             =>topic[string]:该客户端订阅的话题,可用于群消息,如:group
+             =>id[string]:连接的ID,用于区分不同的客户端,如:userId
+           ==>encode[function]:将收到的数据解码为消息格式传递给onmessage
+           ==>onmessage[function]:收到消息时回调此方法   
+           ==>decode[function]:发送前编码消息为传输格式
+           
+         2. HtmlSockect:传输对象
+           ==>new HtmlSockect(setting);
+             =>setting[HtmlSockect.Settings]:连接相关设置
+           ==>sendTo(toId[string],message[*]):发送P2P消息
+           ==>broadcastGroup(subject[string],message[*]):发送组播消息 
+        </pre>
+		服务端提供以下接口:<br>
+		<pre>
+	    1. IMessage:消息接口,开发者实现该接口定义消息格式
+	    2. ICodec  :消息编解码类,负责编码和解码消息
+	    3. ISubscriber:消息订阅者,订阅指定主题的消息
+	    4. IConnListener:连接监听器,连接建立和关闭时会回调 
+	    5. WSContext:上下文,可以发送消息[P2P,组播,广播] 
+	           
+		</pre>
+		<hr>
+		<strong id="demo">Demo</strong> <br> 1、<a
+			href="https://github.com/coderczp/HtmlSocket/blob/master/htmlsocket-1.0.0.jar">下载最新的jar</a><br>
+		2、在命令行运行: java -jar htmlsocket-1.0.0.jar<br>
+		3、打开浏览器输入:http://127.0.0.1:8877/<br>
+		4、管理界面:http://127.0.0.1:8877/<br>
+		<hr>
+		<strong id="api">集成到web服务</strong><br> 1、<a
+			href="https://github.com/coderczp/HtmlSocket/blob/master/htmlsocket-1.0.0.jar">下载最新的jar</a><br>
+		2、编写HtmlSocket启动类,最好在servlet里启动(<strong> <font color="red">运行java
+				-jar htmlsocket-1.0.0.jar后./web目录下有完整Demo源码</font></strong>)<br>
+		<textarea class="deomcode" disabled="disabled">
+	package com.nice.czp.htmlsocket.demo;
+	import javax.servlet.ServletConfig;
+	import javax.servlet.ServletException;
+	import javax.servlet.http.HttpServlet;
+	import com.nice.czp.htmlsocket.api.ICodec;
+	import com.nice.czp.htmlsocket.ws.JSonMessage;
+	import com.nice.czp.htmlsocket.ws.WSSever;
+	
+	// HtmlSocket sever 启动类
+	public class HtmlSocketServlet extends HttpServlet {
+	    private static final long serialVersionUID = 1L;
+	    private WSSever wsServer;
+	    @Override
+	    public void destroy() {
+	        try {
+	            if (wsServer != null)
+	                wsServer.stop();
+	        } catch (Exception e) {
+	            System.out.println("fail to stop htmlsocket server," + e);
+	        }
+	    }
+	    @Override
+	    public void init(ServletConfig config) throws ServletException {
+	        try {
+	            ICodec codec = new JSonMessage();//Instead of your code.
+	            String port = config.getInitParameter("port");
+	            this.wsServer = new WSSever(Integer.valueOf(port), codec);
+	            wsServer.start();
+	        } catch (Exception e) {
+	            System.out.println("fail to start htmlsocket server," + e);
+	        }
+	    }
+	}
+		</textarea>
+		3、客户端js代码:
+		<textarea class="deomcode" disabled="disabled">
+	var id = 'jerry';
+	var topic = 'topicx';
+	var url = 'http://127.0.0.1:8877/';
+	var setting = new HtmlSockect.Settings(url, id, topic);
+	setting.onmessage = function(res) {
+		recv.value = recv.value + '\n' + res.from + ':' + res.data;
+	};
+	setting.encode = function(msg) {
+		return {'data' : msg};
+	}
+	setting.decode = function(data) {
+		if (typeof (data) === 'string')
+			return JSON.parse(data)
+		return data;
+	}
+	var hs = new HtmlSockect(setting);
+	hs.listen();
+	var recv = document.getElementById('recv');
+	var send = document.getElementById('send');
+	function submit() {
+		if (send.value) {
+			hs.sendTo('tom', send.value);
+			recv.value = recv.value + '\n' + setting.id + ':' + send.value;
+			send.value = '';
+		}
+	}
+	function submitGroup() {
+		if (send.value) {
+			hs.broadcastGroup('topicy', send.value);
+			recv.value = recv.value + '\n' + setting.id + ':' + send.value;
+			send.value = '';
+		}
+	}
+		</textarea>
+	</div>
+	<div class="footer">
+		<a href="#">支持项目</a>&nbsp; <a href="mailto:coder_czp@126.com">联系作者</a>&nbsp;
+	</div>
+</body>
+</html>

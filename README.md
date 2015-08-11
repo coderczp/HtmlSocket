@@ -1,2 +1,2 @@
 # HtmlSocket
-开源反向ajax框架
+跨浏览器的反向ajax框架http://htmlsocket.sinaapp.com/ 

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>htmlsocket</title>
+</head>
+<body>
+	<a href="./chat.html" target="blank">打开另一个页面开始聊天</a>
+	<br>
+	<input type="text" id="send">
+	<input type="button" value="Submit" onclick="submit()">
+	<input type="button" value="broadcastGroup" onclick="submitGroup()">
+	<br> message:
+	<br>
+	<textarea rows="30" cols="50" id="recv"></textarea>
+</body>
+<script src="./HtmlSocket.mini.js"></script>
+<script type="text/javascript">
+	var id = 'jerry';
+	var topic = 'topicx';
+	var url = 'http://127.0.0.1:8877/';
+	var setting = new HtmlSockect.Settings(url, id, topic);
+	setting.onmessage = function(res) {
+		recv.value = recv.value + '\n' + res.from + ':' + res.data;
+	};
+	setting.encode = function(msg) {
+		var data = {
+			'data' : msg
+		};
+		return data;
+	}
+	setting.decode = function(data) {
+		if (typeof (data) === 'string')
+			return JSON.parse(data)
+		return data;
+	}
+	var hs = new HtmlSockect(setting);
+	hs.listen();
+
+	var recv = document.getElementById('recv');
+	var send = document.getElementById('send');
+	function submit() {
+		if (send.value) {
+			hs.sendTo('tom', send.value);
+			recv.value = recv.value + '\n' + setting.id + ':' + send.value;
+			send.value = '';
+		}
+	}
+	function submitGroup() {
+		if (send.value) {
+			hs.broadcastGroup('topicy', send.value);
+			recv.value = recv.value + '\n' + setting.id + ':' + send.value;
+			send.value = '';
+		}
+	}
+</script>
+</html>
