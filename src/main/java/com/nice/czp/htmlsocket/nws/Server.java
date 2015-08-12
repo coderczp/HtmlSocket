@@ -2,6 +2,7 @@ package com.nice.czp.htmlsocket.nws;
 
 import java.io.IOException;
 
+import org.glassfish.grizzly.CloseListener;
 import org.glassfish.grizzly.ConnectionProbe;
 import org.glassfish.grizzly.http.server.HttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -31,7 +32,7 @@ public class Server {
         wsEngine = WebSocketEngine.getEngine();
         server = HttpServer.createSimpleServer(".", port);
         sercfg = server.getServerConfiguration();
-
+        
         HttpServerMonitoringConfig cfg = sercfg.getMonitoringConfig();
         MonitoringConfig<ConnectionProbe> ccfg = cfg.getConnectionConfig();
         ccfg.addProbes(connManager);

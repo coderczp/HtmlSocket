@@ -16,7 +16,21 @@ public class ConnManager extends Adapter {
 
     private Map<String, RemoteConn> conns = new ConcurrentHashMap<>();
 
+    
     @Override
+	public void onAcceptEvent(Connection serverConnection,
+			Connection clientConnection) {
+    	System.out.println("------------>"+clientConnection);
+		super.onAcceptEvent(serverConnection, clientConnection);
+	}
+
+	@Override
+	public void onErrorEvent(Connection connection, Throwable error) {
+		System.out.println("---------xx--->"+connection);
+		super.onErrorEvent(connection, error);
+	}
+
+	@Override
     @SuppressWarnings("rawtypes")
     public void onCloseEvent(Connection connection) {
         Object peerAddress = connection.getPeerAddress();
