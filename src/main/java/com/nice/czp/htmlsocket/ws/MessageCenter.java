@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.glassfish.grizzly.Connection;
+import org.glassfish.grizzly.ConnectionProbe.Adapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +18,7 @@ import com.nice.czp.htmlsocket.api.ISubscriber;
  * @author coder_czp@126.com-2015年8月8日
  * 
  */
-public class MessageCenter {
+public class MessageCenter extends Adapter {
 
     private static Logger log = LoggerFactory.getLogger(MessageCenter.class);
 
@@ -93,6 +95,12 @@ public class MessageCenter {
 
     public Map<String, ISubscriber> getSubscribers() {
         return Collections.unmodifiableMap(allSubs);
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    public void onCloseEvent(Connection conn) {
+        super.onCloseEvent(conn);
     }
 
 }
