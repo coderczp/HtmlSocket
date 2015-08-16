@@ -9,7 +9,7 @@ package com.nice.czp.htmlsocket.api;
  */
 public interface ISubscriber {
 
-    String getId();
+    long getId();
 
     String getTopic();
 

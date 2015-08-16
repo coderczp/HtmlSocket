@@ -239,7 +239,7 @@ ul#nav li a {
            ==>new HtmlSockect.Settings('url', 'id','topic');
              =>url[url]:提供推送的url地址,如:http://localhost:8877/
              =>topic[string]:该客户端订阅的话题,可用于群消息,如:group
-             =>id[string]:连接的ID,用于区分不同的客户端,如:userId
+             =>id[long]:连接的ID,用于区分不同的客户端,如:userId
            ==>encode[function]:将收到的数据解码为消息格式传递给onmessage
            ==>onmessage[function]:收到消息时回调此方法   
            ==>decode[function]:发送前编码消息为传输格式

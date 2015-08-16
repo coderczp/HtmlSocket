@@ -1,4 +1,4 @@
-package com.nice.czp.htmlsocket.ws;
+package com.nice.czp.htmlsocket.push;
 
 import com.alibaba.fastjson.JSONObject;
 import com.nice.czp.htmlsocket.api.ICodec;
@@ -9,8 +9,8 @@ public class JSonMessage implements ICodec, IMessage {
     private static final long serialVersionUID = 1L;
     private String subject;
     private Object data;
-    private String from;
-    private String to;
+    private long from = -1;
+    private long to = -1;
 
     @Override
     public IMessage decode(String textMessage) {
@@ -56,22 +56,22 @@ public class JSonMessage implements ICodec, IMessage {
         return "JSonMessage [subject=" + subject + "]";
     }
 
-	@Override
-	public String getFrom() {
-		return from;
-	}
+    @Override
+    public long getFrom() {
+        return from;
+    }
 
-	@Override
-	public String getTo() {
-		return to;
-	}
+    @Override
+    public long getTo() {
+        return to;
+    }
 
-	public void setFrom(String from) {
-		this.from = from;
-	}
+    public void setFrom(long from) {
+        this.from = from;
+    }
 
-	public void setTo(String to) {
-		this.to = to;
-	}
+    public void setTo(long to) {
+        this.to = to;
+    }
 
 }

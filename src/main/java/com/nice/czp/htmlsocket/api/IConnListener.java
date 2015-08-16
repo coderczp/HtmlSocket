@@ -22,14 +22,6 @@ public interface IConnListener {
      * @return WSError|null
      * 
      */
-    WSError beforeConnect(ISubscriber subscriber, Map<String, String[]> params);
-
-    /**
-     * subscriber断开连接前进行相关处理
-     * 
-     * @param subscriber
-     *            将要断连的订阅者
-     */
-    void beforeClose(ISubscriber subscriber);
+    PushError beforeConnect(ISubscriber subscriber, Map<String, String[]> params);
 
 }

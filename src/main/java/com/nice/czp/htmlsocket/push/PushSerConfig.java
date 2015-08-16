@@ -1,4 +1,4 @@
-package com.nice.czp.htmlsocket.ws;
+package com.nice.czp.htmlsocket.push;
 
 import com.nice.czp.htmlsocket.api.ICodec;
 
@@ -7,7 +7,7 @@ import com.nice.czp.htmlsocket.api.ICodec;
  * @author coder_czp@126.com-2015年8月8日
  * 
  */
-public class ServerConfig {
+public class PushSerConfig {
 
     private int port;
     private ICodec codec;
@@ -15,9 +15,8 @@ public class ServerConfig {
     /* Access-Control-Allow-Origin 默认允许所有站点跨域访问 */
     private String corsControl = "*";
     private long connTimeout = 60 * 1000;
-    private boolean useMappedbuf = true;
 
-    public ServerConfig(int port, ICodec codec) {
+    public PushSerConfig(int port, ICodec codec) {
         this.port = port;
         this.codec = codec;
     }
@@ -60,14 +59,6 @@ public class ServerConfig {
 
     public void setResourceBase(String resourceBase) {
         this.resourceBase = resourceBase;
-    }
-
-    public boolean isUseMappedbuf() {
-        return useMappedbuf;
-    }
-
-    public void setUseMappedbuf(boolean useMappedbuf) {
-        this.useMappedbuf = useMappedbuf;
     }
 
 }

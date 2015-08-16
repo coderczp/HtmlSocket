@@ -14,7 +14,7 @@
 </body>
 <script src="./HtmlSocket.mini.js"></script>
 <script type="text/javascript">
-	var id = 'tom';
+	var id = '100';
 	var topic = 'topicy';
 	var url = 'http://127.0.0.1:8877/';
 	var setting = new HtmlSockect.Settings(url, id, topic);
@@ -39,14 +39,14 @@
 	var send = document.getElementById('send');
 	function submit() {
 		if (send.value) {
-			hs.sendTo('jerry', send.value);
+			hs.sendTo('13', send.value);
 			recv.value = recv.value + '\n' + setting.id + ':' + send.value;
 			send.value = '';
 		}
 	}
 	function submitGroup() {
 		if (send.value) {
-			hs.broadcastGroup('topicx', send.value);
+			hs.broadcastGroup('12', send.value);
 			recv.value = recv.value + '\n' + setting.id + ':' + send.value;
 			send.value = '';
 		}

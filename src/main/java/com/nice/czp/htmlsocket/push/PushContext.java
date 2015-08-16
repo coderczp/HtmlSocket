@@ -1,4 +1,4 @@
-package com.nice.czp.htmlsocket.ws;
+package com.nice.czp.htmlsocket.push;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -11,16 +11,16 @@ import org.slf4j.LoggerFactory;
 import com.nice.czp.htmlsocket.api.ICodec;
 import com.nice.czp.htmlsocket.api.IConnListener;
 import com.nice.czp.htmlsocket.api.ISubscriber;
-import com.nice.czp.htmlsocket.api.WSError;
+import com.nice.czp.htmlsocket.api.PushError;
 
-public class WSContext {
+public class PushContext {
 
-    private static final Logger log = LoggerFactory.getLogger(WSContext.class);
+    private static final Logger log = LoggerFactory.getLogger(PushContext.class);
     private CopyOnWriteArrayList<IConnListener> connListeners;
     private MessageCenter messageCenter;
-    private ServerConfig config;
+    private PushSerConfig config;
 
-    public WSContext(ServerConfig config) {
+    public PushContext(PushSerConfig config) {
         connListeners = new CopyOnWriteArrayList<IConnListener>();
         this.config = config;
     }
@@ -29,7 +29,7 @@ public class WSContext {
         return config.getCodec();
     }
 
-    public ServerConfig getConfig() {
+    public PushSerConfig getConfig() {
         return config;
     }
 
@@ -53,9 +53,9 @@ public class WSContext {
         return Collections.unmodifiableList(connListeners);
     }
 
-    public WSError beforeConn(ISubscriber sub, Map<String, String[]> params) {
+    public PushError beforeConn(ISubscriber sub, Map<String, String[]> params) {
         for (IConnListener conn : connListeners) {
-            WSError error = conn.beforeConnect(sub, params);
+            PushError error = conn.beforeConnect(sub, params);
             if (error != null) {
                 log.info("{} terminate request", conn);
                 return error;
@@ -64,9 +64,4 @@ public class WSContext {
         return null;
     }
 
-    public void beforeConnClose(ISubscriber sub) {
-        for (IConnListener conn : connListeners) {
-            conn.beforeClose(sub);
-        }
-    }
 }
