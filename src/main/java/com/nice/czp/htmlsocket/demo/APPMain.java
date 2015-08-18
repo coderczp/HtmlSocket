@@ -24,6 +24,7 @@ public class APPMain {
 
     private static void startWSSer(PushSerConfig config) throws Exception {
         PullServer ser = new PullServer(config);
+       // ser.addWebSocketHandler("/ws/*", new WebSocketServer(ser.getContext()));
         ser.start();
         ser.sync();
     }

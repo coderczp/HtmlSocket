@@ -8,5 +8,5 @@ package com.nice.czp.htmlsocket.api;
  */
 public interface IRemoteSubcriber extends ISubscriber {
 
-    void doClose();
+    void doUnSubscrib();
 }

@@ -1,15 +1,11 @@
-package com.nice.czp.htmlsocket.push.ws;
+package com.nice.czp.htmlsocket.push.ws.itf;
 
-/**
- * The <a href="https://tools.ietf.org/html/rfc6455#section-7.4">RFC 6455 specified status codes</a> and <a
- * href="https://www.iana.org/assignments/websocket/websocket.xml#close-code-number-rules">IANA: WebSocket Close
- * Code
- * Number Registry</a>
- * 
- * @author coder_czp@126.com-2015年8月13日
- * 
- */
-public class WebsockCode {
+import java.util.Map;
+
+import org.glassfish.grizzly.filterchain.FilterChainContext;
+import org.glassfish.grizzly.http.HttpHeader;
+
+public interface IWebsocket {
     /**
      * 1000 indicates a normal closure, meaning that the purpose for which the connection was established has been
      * fulfilled.
@@ -144,4 +140,37 @@ public class WebsockCode {
      * See <a href="https://tools.ietf.org/html/rfc6455#section-7.4.1">RFC 6455, Section 7.4.1 Defined Status Codes</a>.
      */
     public final static int FAILED_TLS_HANDSHAKE = 1015;
+    
+    public static final String SEC_WS_ACCEPT = "Sec-WebSocket-Accept";
+    public static final String SEC_WS_KEY_HEADER = "Sec-WebSocket-Key";
+    public static final String SEC_WS_ORIGIN_HEADER = "Sec-WebSocket-Origin";
+    public static final String ORIGIN_HEADER = "Origin";
+    public static final String SEC_WS_PROTOCOL_HEADER = "Sec-WebSocket-Protocol";
+    public static final String SEC_WS_EXTENSIONS_HEADER = "Sec-WebSocket-Extensions";
+    public static final String SEC_WS_VERSION = "Sec-WebSocket-Version";
+    public static final String WEBSOCKET = "websocket";
+    public static final String RESPONSE_CODE_MESSAGE = "Switching Protocols";
+    public static final String RESPONSE_CODE_HEADER = "Response Code";
+    public static final int RESPONSE_CODE_VALUE = 101;
+    public static final String UPGRADE = "upgrade";
+    public static final String CONNECTION = "connection";
+    public static final String CLIENT_WS_ORIGIN_HEADER = "Origin";
+    public static final String SERVER_KEY_HASH = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    public static final int MASK_SIZE = 4;
+
+    public IWSCodec getCodec();
+
+    public void send(Object message);
+
+    public String getRemoteAddress();
+
+    public Map<String, Object> getExt();
+
+    public void onMessage(WSMessage message);
+
+    public void close(int code, String info);
+
+    public void addListener(IWebsocketListener listener);
+
+    public void doHandShake(HttpHeader header, FilterChainContext ctx);
 }

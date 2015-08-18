@@ -49,14 +49,14 @@ public class PollSubcriber implements IRemoteSubcriber {
             }
             writer.write(json);
             writer.flush();
-            doClose();
+            doUnSubscrib();
         } catch (Exception e) {
             log.error("onMessage error", e);
         }
     }
 
     @Override
-    public void doClose() {
+    public void doUnSubscrib() {
         if (response.isSuspended()) {
             response.resume();
         }

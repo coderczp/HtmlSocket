@@ -14,7 +14,7 @@
 	<br>
 	<textarea rows="30" cols="50" id="recv"></textarea>
 </body>
-<script src="./HtmlSocket.mini.js"></script>
+<script src="./HtmlSocket.js"></script>
 <script type="text/javascript">
 	var id = '13';
 	var topic = 'topicx';
@@ -34,6 +34,9 @@
 			return JSON.parse(data)
 		return data;
 	}
+	setting.onerror = function(msg){
+	  console.log(msg);
+	}
 	var hs = new HtmlSockect(setting);
 	hs.listen();
 
@@ -41,7 +44,7 @@
 	var send = document.getElementById('send');
 	function submit() {
 		if (send.value) {
-			hs.sendTo('12', send.value);
+			hs.sendTo('100', send.value);
 			recv.value = recv.value + '\n' + setting.id + ':' + send.value;
 			send.value = '';
 		}

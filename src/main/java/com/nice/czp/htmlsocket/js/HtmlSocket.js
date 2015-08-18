@@ -142,6 +142,8 @@ HtmlSockect.createSocket = function(set) {
 
 	function WebSock(set) {
 
+		var _sock;
+
 		this.listen = function() {
 			var param = "topic=" + set.topic + "&id=" + set.id;
 			var url = set.url.replace("http", "ws");
@@ -152,19 +154,14 @@ HtmlSockect.createSocket = function(set) {
 			ws.onopen = set.onopen;
 			var server_error = 1011;
 			ws.onclose = function(evt) {
-				var reason = evt.reason;
-				if (server_error == evt.code) {
-					/* server close connect */
-					set.onerror(reason);
-					return;
-				}
-				/* reconn if not close by user */
-				if ('user close' != evt) {
-					this._sock = null;
-					listen();
+				if ('user close' === evt || evt.code > 0) {
+					this.onclose = null;
+					this.close();
+					set.onerror(evt.reason);
 				} else {
-					this._sock.onclose = null;
-					this._sock.close();
+					/* reconn if not close by user */
+					_sock = null;
+					listen();
 				}
 			};
 			ws.onmessage = function(evt) {
@@ -174,7 +171,7 @@ HtmlSockect.createSocket = function(set) {
 					set.onerror(e);
 				}
 			};
-			this._sock = ws;
+			_sock = ws;
 		}
 		this.shutdown = function() {
 			_sock.close('user close');

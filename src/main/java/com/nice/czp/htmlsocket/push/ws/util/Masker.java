@@ -1,8 +1,11 @@
-package com.nice.czp.htmlsocket.push.ws;
+package com.nice.czp.htmlsocket.push.ws.util;
 
 import java.security.SecureRandom;
 
 import org.glassfish.grizzly.Buffer;
+
+import com.nice.czp.htmlsocket.push.ws.itf.IWebsocket;
+
 
 public class Masker {
 	private Buffer buffer;
@@ -30,14 +33,14 @@ public class Masker {
 	public byte unmask() {
 		final byte b = get();
 		return mask == null ? b : (byte) (b ^ mask[index++
-				% Constants.MASK_SIZE]);
+				% IWebsocket.MASK_SIZE]);
 	}
 
 	public byte[] unmask(int count) {
 		byte[] bytes = get(count);
 		if (mask != null) {
 			for (int i = 0; i < bytes.length; i++) {
-				bytes[i] ^= mask[index++ % Constants.MASK_SIZE];
+				bytes[i] ^= mask[index++ % IWebsocket.MASK_SIZE];
 			}
 		}
 
@@ -45,28 +48,28 @@ public class Masker {
 	}
 
 	public void generateMask() {
-		mask = new byte[Constants.MASK_SIZE];
+		mask = new byte[IWebsocket.MASK_SIZE];
 		new SecureRandom().nextBytes(mask);
 	}
 
 	public void mask(byte[] bytes, int location, byte b) {
 		bytes[location] = mask == null ? b : (byte) (b ^ mask[index++
-				% Constants.MASK_SIZE]);
+				% IWebsocket.MASK_SIZE]);
 	}
 
 	public void mask(byte[] target, int location, byte[] bytes) {
 		if (bytes != null && target != null) {
 			for (int i = 0; i < bytes.length; i++) {
 				target[location + i] = mask == null ? bytes[i]
-						: (byte) (bytes[i] ^ mask[index++ % Constants.MASK_SIZE]);
+						: (byte) (bytes[i] ^ mask[index++ % IWebsocket.MASK_SIZE]);
 			}
 		}
 	}
 
 	public byte[] maskAndPrepend(byte[] packet) {
-		byte[] masked = new byte[packet.length + Constants.MASK_SIZE];
-		System.arraycopy(getMask(), 0, masked, 0, Constants.MASK_SIZE);
-		mask(masked, Constants.MASK_SIZE, packet);
+		byte[] masked = new byte[packet.length + IWebsocket.MASK_SIZE];
+		System.arraycopy(getMask(), 0, masked, 0, IWebsocket.MASK_SIZE);
+		mask(masked, IWebsocket.MASK_SIZE, packet);
 		return masked;
 	}
 
@@ -79,6 +82,6 @@ public class Masker {
 	}
 
 	public void readMask() {
-		mask = get(Constants.MASK_SIZE);
+		mask = get(IWebsocket.MASK_SIZE);
 	}
 }

@@ -36,15 +36,14 @@ public class AdminServlet extends HttpHandler {
         MessageCenter sever = ctx.getMessageCenter();
         Collection<ThreadMap> allsub = sever.getSubscribers();
         for (ThreadMap subs : allsub) {
-            if (count < 100) {
-                for (Map.Entry<Long, ISubscriber> item : subs.entrySet()) {
+            for (Map.Entry<Long, ISubscriber> item : subs.entrySet()) {
+                if (count++ < 20) {
                     ISubscriber value = item.getValue();
                     String topic = value.getTopic();
                     long id = value.getId();
                     writer.write(String.format("<li>ID:[%s],Topic:[%s]-[%s]</li>", id, topic, value));
                 }
             }
-            count += subs.size();
         }
         writer.write("</ul><hr>");
         writer.write(String.format("订阅者[%s]", count));
