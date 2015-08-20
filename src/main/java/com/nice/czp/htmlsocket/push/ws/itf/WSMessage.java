@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import org.glassfish.grizzly.utils.Charsets;
 
+
 /**
  * TODO Please Descrip This Class
  * 
@@ -44,9 +45,17 @@ public class WSMessage {
         msg.data = data;
         return msg;
     }
-
+    
+    public static WSMessage create(WSFrameType type, byte[] data){
+    	return create(type, data, true);
+    }
+    
+    public static WSMessage create(WSFrameType type, byte[] data,byte[] mask) {
+        return create(type, data, mask, true);
+    }
+    
     public static WSMessage create(WSFrameType type, byte[] data, boolean isFin) {
-        return create(type, data, null, isFin);
+        return create(type, data, null);
     }
 
     public static WSMessage create(WSFrameType type) {
@@ -54,11 +63,15 @@ public class WSMessage {
     }
 
     /* 内容为两字节的code+utf8编码的reason */
-    public static WSMessage createClose(int code, String reason) {
-        byte[] utf8 = reason.getBytes(Charsets.UTF8_CHARSET);
+    public static WSMessage createClose(int code, String reason,byte[] mask) {
+    	byte[] utf8 = reason.getBytes(Charsets.UTF8_CHARSET);
         ByteBuffer buf = ByteBuffer.allocate(2 + utf8.length);
         buf.putChar((char) code);
         buf.put(utf8);
-        return create(WSFrameType.CLOSE, buf.array(), true);
+        return create(WSFrameType.CLOSE, buf.array(), mask);
+    }
+  
+    public static WSMessage createClose(int code, String reason) {
+        return createClose(code, reason,null);
     }
 }

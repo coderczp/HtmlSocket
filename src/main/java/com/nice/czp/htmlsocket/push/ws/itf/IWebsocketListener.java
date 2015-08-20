@@ -10,9 +10,7 @@ import java.util.Map;
  */
 public interface IWebsocketListener {
 
-    void onTextMessage(String message);
-
-    void onBytesMessage(byte[] message);
+    void onWSMessage(byte[] data,boolean isTextMessage);
 
     void onClosed(IWebsocket websocket,int code,String info);
 

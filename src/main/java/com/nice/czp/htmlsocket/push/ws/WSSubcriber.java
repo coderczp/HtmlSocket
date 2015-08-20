@@ -1,5 +1,6 @@
 package com.nice.czp.htmlsocket.push.ws;
 
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -17,14 +18,14 @@ import com.nice.czp.htmlsocket.push.ws.itf.IWebsocketListener;
  * @author coder_czp@126.com-2015年8月17日
  * 
  */
-public class WSSub implements IWebsocketListener, IRemoteSubcriber {
+public class WSSubcriber implements IWebsocketListener, IRemoteSubcriber {
 
-	private static Logger log = LoggerFactory.getLogger(WSSub.class);
+	private static Logger log = LoggerFactory.getLogger(WSSubcriber.class);
 	private Map<String, String[]> params;
 	private PushContext context;
 	private IWebsocket sock;
 
-	public WSSub(PushContext pushCtx) {
+	public WSSubcriber(PushContext pushCtx) {
 		this.context = pushCtx;
 	}
 
@@ -41,43 +42,31 @@ public class WSSub implements IWebsocketListener, IRemoteSubcriber {
 	@Override
 	public void doUnSubscrib() {
 		log.info("ws client [{}]-unsub", sock);
-		sock.close(IWebsocket.SERVER_ERROR, "normol closed");
+		sock.close(IWebsocket.SERVER_ERROR, "Server remove subcriber");
 	}
 
 	@Override
-	public void onBytesMessage(byte[] data) {
-		try {
-			IMessage msg = context.getCodec().decode(data);
-			context.getMessageCenter().send(msg);
-		} catch (Exception e) {
-			log.error("decode byte message err", e);
-		}
-	}
-
-	@Override
-	public void onTextMessage(String text) {
-		try {
+	public void onWSMessage(byte[] data, boolean isText) {
+		if (isText) {
+			String text = new String(data, Charset.forName("UTF-8"));
 			IMessage msg = context.getCodec().decode(text);
 			context.getMessageCenter().send(msg);
-		} catch (Throwable e) {
-			log.error("decode text message err", e);
+		} else {
+			IMessage msg = context.getCodec().decode(data);
+			context.getMessageCenter().send(msg);
 		}
 	}
 
 	@Override
 	public void onMessage(IMessage message) {
-		try {
-			sock.send(context.getCodec().endcodeToText(message));
-		} catch (Throwable e) {
-			log.error("onMessage err", e);
-		}
+		sock.send(context.getCodec().endcodeToText(message));
 	}
 
 	@Override
 	public void onConnected(IWebsocket websocket, Map<String, String[]> params) {
-		PushError err;
-		this.params = params;
 		this.sock = websocket;
+		this.params = params;
+		PushError err;
 		if ((err = context.beforeConn(this, params)) != null) {
 			websocket.close(IWebsocket.SERVER_ERROR, err.toString());
 		} else {

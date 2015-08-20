@@ -73,4 +73,8 @@ public class PullServer {
         System.in.read();
         server.shutdownNow();
     }
+
+    public void stop() {
+        server.shutdownNow();
+    }
 }

@@ -1,6 +1,9 @@
 package com.nice.czp.htmlsocket.push.ws.util;
 
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+
+import com.nice.czp.htmlsocket.push.ws.itf.IWebsocket;
 
 /**
  * 
@@ -49,5 +52,18 @@ public class FrameUtil {
 
     public static byte bitSet(byte b, int pos) {
         return (byte) (b | (1 << pos));
+    }
+
+    @SuppressWarnings("restriction")
+    public static String generateSecKey(String clientKey) {
+        try {
+            sun.misc.BASE64Encoder endoer = new sun.misc.BASE64Encoder();
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            String serKey = clientKey + IWebsocket.SERVER_KEY_HASH;
+            md.update(serKey.getBytes("ASCII"));
+            return endoer.encode(md.digest());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
     }
 }

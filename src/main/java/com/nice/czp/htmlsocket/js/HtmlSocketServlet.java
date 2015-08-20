@@ -1,9 +1,5 @@
 package com.nice.czp.htmlsocket.js;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-
 import com.nice.czp.htmlsocket.api.ICodec;
 import com.nice.czp.htmlsocket.api.IMessage;
 import com.nice.czp.htmlsocket.api.ISubscriber;
@@ -14,26 +10,17 @@ import com.nice.czp.htmlsocket.push.PushSerConfig;
 /**
  * HtmlSocket sever 启动类
  */
-public class HtmlSocketServlet extends HttpServlet {
+public class HtmlSocketServlet {
 
-    private static final long serialVersionUID = 1L;
-    private MessageCenter messageCenter;
+    private static MessageCenter messageCenter;
 
-    @Override
-    public void destroy() {
-        try {
-        } catch (Exception e) {
-            System.out.println("fail to stop htmlsocket server," + e);
-        }
-    }
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
+    public static void main(String[] args) {
         try {
             ICodec codec = null;// Instead of your code.
-            String portStr = config.getInitParameter("port");
+            String portStr = args[0];
             int port = Integer.valueOf(portStr);
             PullServer ser = new PullServer(new PushSerConfig(port, codec));
+            messageCenter = ser.getContext().getMessageCenter();
             ser.start();
         } catch (Exception e) {
             System.out.println("fail to start htmlsocket server," + e);

@@ -50,12 +50,15 @@ public abstract class AbstractWebscoket implements IWebsocket {
 	}
 
 	@Override
-	public void onMessage(WSMessage result) {
-		if (result.frameType == WSFrameType.TXT) {
-			fireTextMessage(new String(result.data));
-		} else if (result.frameType == WSFrameType.BIN) {
-			fireBinMessage(result.data);
+	public void dipatchMessage(WSMessage result) {
+		for (IWebsocketListener listener : listeners) {
+			listener.onWSMessage(result.data, result.frameType == WSFrameType.TXT);
 		}
+	}
+
+	@Override
+	public void onClose(int code, String info) {
+		fireDisConnected(code, info);
 	}
 
 	@Override
@@ -64,7 +67,7 @@ public abstract class AbstractWebscoket implements IWebsocket {
 			writeMessage(WSMessage.createClose(code, info));
 			connection.closeSilently();
 		}
-		fireDisConnected(code, info);
+		onClose(code, info);
 	}
 
 	@Override
@@ -89,18 +92,6 @@ public abstract class AbstractWebscoket implements IWebsocket {
 	protected void fireDisConnected(int code, String info) {
 		for (IWebsocketListener listener : listeners) {
 			listener.onClosed(this, code, info);
-		}
-	}
-
-	protected void fireTextMessage(String message) {
-		for (IWebsocketListener listener : listeners) {
-			listener.onTextMessage(message);
-		}
-	}
-
-	protected void fireBinMessage(byte[] message) {
-		for (IWebsocketListener listener : listeners) {
-			listener.onBytesMessage(message);
 		}
 	}
 

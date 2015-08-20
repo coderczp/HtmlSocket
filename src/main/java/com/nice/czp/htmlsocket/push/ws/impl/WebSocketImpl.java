@@ -1,23 +1,16 @@
 package com.nice.czp.htmlsocket.push.ws.impl;
 
-import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.glassfish.grizzly.filterchain.FilterChainContext;
-import org.glassfish.grizzly.http.HttpContent;
-import org.glassfish.grizzly.http.HttpHeader;
-import org.glassfish.grizzly.http.HttpRequestPacket;
-import org.glassfish.grizzly.http.HttpResponsePacket;
-import org.glassfish.grizzly.http.Protocol;
-import org.glassfish.grizzly.http.util.Base64Utils;
-import org.glassfish.grizzly.http.util.HttpStatus;
-import org.glassfish.grizzly.utils.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nice.czp.htmlsocket.push.ws.itf.AbstractWebscoket;
 import com.nice.czp.htmlsocket.push.ws.itf.IWSCodec;
-import com.nice.czp.htmlsocket.push.ws.itf.IWebsocket;
+import com.nice.czp.htmlsocket.push.ws.util.FrameUtil;
 
 /**
  * http://jinnianshilongnian.iteye.com/blog/1899876
@@ -36,13 +29,41 @@ public class WebSocketImpl extends AbstractWebscoket {
         this.codec = codec;
     }
 
-    private void initQueryParams(FilterChainContext ctx) {
-        HttpContent message = ctx.getMessage();
-        HttpHeader header = message.getHttpHeader();
-        HttpRequestPacket pack = (HttpRequestPacket) header;
-        String queryString = pack.getQueryString();
-        StringTokenizer tk = new StringTokenizer(queryString, "&");
+    @Override
+    public String getRemoteAddress() {
+        return remoteAddress;
+    }
 
+    @Override
+    public String toString() {
+        return remoteAddress;
+    }
+
+    @Override
+    public IWSCodec getCodec() {
+        return codec;
+    }
+
+    @Override
+    public Map<String, String> getHandShakePack(Map<String, String> requestParams) {
+        Map<String, String> handShake = new HashMap<String, String>();
+        remoteAddress = requestParams.get(REMOTE_ADDRESS);
+        String cliKey = requestParams.get(SEC_WS_KEY_HEADER);
+
+        handShake.put("Sec-WebSocket-Accept", FrameUtil.generateSecKey(cliKey));
+        handShake.put("Connection", "Upgrade");
+        handShake.put("Upgrade", "websocket");
+        handShake.put("Server", SERVER_NAME);
+
+        initQueryParams(requestParams.get(QUERY_STRING));
+        fireConnected();
+
+        return handShake;
+    }
+
+    /* queryString :id=xx&topic=xx .. */
+    private void initQueryParams(String queryString) {
+        StringTokenizer tk = new StringTokenizer(queryString, "&");
         int index;
         String key;
         String[] value;
@@ -58,53 +79,5 @@ public class WebSocketImpl extends AbstractWebscoket {
                 log.error("error param {}", keyValue);
             }
         }
-    }
-
-    @Override
-    public void doHandShake(HttpHeader header, FilterChainContext ctx) {
-        try {
-            remoteAddress = ctx.getConnection().getPeerAddress().toString();
-            String cliKey = header.getHeader("Sec-WebSocket-Key");
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            String serKey = cliKey + IWebsocket.SERVER_KEY_HASH;
-            md.update(serKey.getBytes(Charsets.ASCII_CHARSET));
-            String key = base64Encode(md.digest());
-
-            HttpRequestPacket pack = (HttpRequestPacket) header;
-            HttpResponsePacket rep = pack.getResponse();
-            rep.setStatus(HttpStatus.SWITCHING_PROTOCOLS_101);
-            rep.setHeader("Access-Control-Allow-Credentials", "true");
-            rep.setHeader("Server", "htmlsocket server");
-            rep.setHeader("Sec-WebSocket-Accept", key);
-            rep.setHeader("Connection", "Upgrade");
-            rep.setHeader("Upgrade", "websocket");
-            rep.setProtocol(Protocol.HTTP_1_1);
-            ctx.write(HttpContent.builder(rep).build());
-            initQueryParams(ctx);
-
-            fireConnected();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String base64Encode(byte[] input) {
-        return Base64Utils.encodeToString(input, false);
-    }
-
-    @Override
-    public String getRemoteAddress() {
-        return remoteAddress;
-    }
-
-    @Override
-    public String toString() {
-        return remoteAddress;
-    }
-
-    @Override
-    public IWSCodec getCodec() {
-        return codec;
     }
 }

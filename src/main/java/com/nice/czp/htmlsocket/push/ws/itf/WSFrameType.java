@@ -34,7 +34,7 @@ public enum WSFrameType {
         case 0x0A:
             return PONG;
         default:
-            throw new ProtocolError(IWebsocket.BAD_DATA, String.format("Unknown frame type:0x%s",
+            throw new ProtocolError(IWebsocket.PROTOCOL, String.format("Unknown frame type:0x%s",
                     Integer.toHexString(opcode)));
         }
     }

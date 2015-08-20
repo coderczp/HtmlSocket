@@ -2,9 +2,6 @@ package com.nice.czp.htmlsocket.push.ws.itf;
 
 import java.util.Map;
 
-import org.glassfish.grizzly.filterchain.FilterChainContext;
-import org.glassfish.grizzly.http.HttpHeader;
-
 public interface IWebsocket {
     /**
      * 1000 indicates a normal closure, meaning that the purpose for which the connection was established has been
@@ -90,7 +87,7 @@ public interface IWebsocket {
      * <p>
      * See <a href="https://tools.ietf.org/html/rfc6455#section-7.4.1">RFC 6455, Section 7.4.1 Defined Status Codes</a>.
      */
-    public final static int MESSAGE_TOO_LARGE = 1009;
+    public final static int MSG_TOO_LARGE = 1009;
 
     /**
      * 1010 indicates that an endpoint (client) is terminating the connection because it has expected the server to
@@ -140,23 +137,24 @@ public interface IWebsocket {
      * See <a href="https://tools.ietf.org/html/rfc6455#section-7.4.1">RFC 6455, Section 7.4.1 Defined Status Codes</a>.
      */
     public final static int FAILED_TLS_HANDSHAKE = 1015;
-    
-    public static final String SEC_WS_ACCEPT = "Sec-WebSocket-Accept";
-    public static final String SEC_WS_KEY_HEADER = "Sec-WebSocket-Key";
-    public static final String SEC_WS_ORIGIN_HEADER = "Sec-WebSocket-Origin";
-    public static final String ORIGIN_HEADER = "Origin";
-    public static final String SEC_WS_PROTOCOL_HEADER = "Sec-WebSocket-Protocol";
+
+    public static final String SERVER_KEY_HASH = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
     public static final String SEC_WS_EXTENSIONS_HEADER = "Sec-WebSocket-Extensions";
-    public static final String SEC_WS_VERSION = "Sec-WebSocket-Version";
-    public static final String WEBSOCKET = "websocket";
+    public static final String SEC_WS_PROTOCOL_HEADER = "Sec-WebSocket-Protocol";
+    public static final String SEC_WS_ORIGIN_HEADER = "Sec-WebSocket-Origin";
     public static final String RESPONSE_CODE_MESSAGE = "Switching Protocols";
     public static final String RESPONSE_CODE_HEADER = "Response Code";
-    public static final int RESPONSE_CODE_VALUE = 101;
-    public static final String UPGRADE = "upgrade";
+    public static final String SEC_WS_ACCEPT = "Sec-WebSocket-Accept";
+    public static final String SEC_WS_KEY_HEADER = "Sec-WebSocket-Key";
+    public static final String SEC_WS_VERSION = "Sec-WebSocket-Version";
     public static final String CONNECTION = "connection";
-    public static final String CLIENT_WS_ORIGIN_HEADER = "Origin";
-    public static final String SERVER_KEY_HASH = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    public static final String ORIGIN_HEADER = "Origin";
+    public static final String WEBSOCKET = "websocket";
+    public static final String UPGRADE = "upgrade";
     public static final int MASK_SIZE = 4;
+    public static final String REMOTE_ADDRESS = "remoteaddr";
+    public static final String QUERY_STRING = "query_string";
+    public static final String SERVER_NAME = "HtmlSocket Server 1.0";
 
     public IWSCodec getCodec();
 
@@ -166,11 +164,21 @@ public interface IWebsocket {
 
     public Map<String, Object> getExt();
 
-    public void onMessage(WSMessage message);
-
     public void close(int code, String info);
+
+    public void onClose(int code, String info);
+
+    public void dipatchMessage(WSMessage message);
 
     public void addListener(IWebsocketListener listener);
 
-    public void doHandShake(HttpHeader header, FilterChainContext ctx);
+    /**
+     * 获取握手包
+     * 
+     * @param requestParams
+     *            http请求头和请求参数
+     * @return
+     */
+    public Map<String, String> getHandShakePack(Map<String, String> requestParams);
+
 }
