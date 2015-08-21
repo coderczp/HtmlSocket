@@ -1,45 +1,27 @@
-package com.nice.czp.htmlsocket.demo;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
+package com.nice.czp.htmlsocket.js;
 
 import com.nice.czp.htmlsocket.api.ICodec;
 import com.nice.czp.htmlsocket.api.IMessage;
 import com.nice.czp.htmlsocket.api.ISubscriber;
-import com.nice.czp.htmlsocket.ws.MessageCenter;
-import com.nice.czp.htmlsocket.ws.ServerConfig;
-import com.nice.czp.htmlsocket.ws.WSSever;
+import com.nice.czp.htmlsocket.push.MessageCenter;
+import com.nice.czp.htmlsocket.push.PullServer;
+import com.nice.czp.htmlsocket.push.PushSerConfig;
 
 /**
  * HtmlSocket sever 启动类
  */
-public class HtmlSocketServlet extends HttpServlet {
+public class HtmlSocketServlet {
 
-    private static final long serialVersionUID = 1L;
-    private MessageCenter messageCenter;
-    private WSSever wsServer;
+    private static MessageCenter messageCenter;
 
-    @Override
-    public void destroy() {
-        try {
-            if (wsServer != null)
-                wsServer.stop();
-        } catch (Exception e) {
-            System.out.println("fail to stop htmlsocket server," + e);
-        }
-    }
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
+    public static void main(String[] args) {
         try {
             ICodec codec = null;// Instead of your code.
-            String portStr = config.getInitParameter("port");
+            String portStr = args[0];
             int port = Integer.valueOf(portStr);
-            ServerConfig cfg = new ServerConfig(port, codec);
-            wsServer = new WSSever(cfg);
-            messageCenter = wsServer.getContext().getMessageCenter();
-            wsServer.start();
+            PullServer ser = new PullServer(new PushSerConfig(port, codec));
+            messageCenter = ser.getContext().getMessageCenter();
+            ser.start();
         } catch (Exception e) {
             System.out.println("fail to start htmlsocket server," + e);
         }
@@ -47,7 +29,7 @@ public class HtmlSocketServlet extends HttpServlet {
 
     public void sendMessage() {
         IMessage msg = null;// Instead of your code.
-        messageCenter.sendTo("demoId", msg);
+        messageCenter.sendTo(100, msg);
         messageCenter.broadcastGroup("demo", msg);
         messageCenter.broadcastAll(msg);
     }
@@ -66,8 +48,8 @@ public class HtmlSocketServlet extends HttpServlet {
             }
 
             @Override
-            public String getId() {
-                return "demoid";
+            public long getId() {
+                return 1000;
             }
         });
     }

@@ -10,7 +10,7 @@ import com.nice.czp.htmlsocket.push.ws.itf.IWebsocket;
  * @author coder_czp@126.com-2015年8月17日
  * 
  */
-public class FrameUtil {
+public class Util {
 
     // 控制帧最高位为1,和0x08[1000]与运算即可判断
     public static boolean isControlFrame(byte opcode) {

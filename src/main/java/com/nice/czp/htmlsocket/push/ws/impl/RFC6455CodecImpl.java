@@ -9,8 +9,8 @@ import com.nice.czp.htmlsocket.push.ws.itf.IWSCodec;
 import com.nice.czp.htmlsocket.push.ws.itf.IWebsocket;
 import com.nice.czp.htmlsocket.push.ws.itf.WSFrameType;
 import com.nice.czp.htmlsocket.push.ws.itf.WSMessage;
-import com.nice.czp.htmlsocket.push.ws.util.ByteList;
-import com.nice.czp.htmlsocket.push.ws.util.FrameUtil;
+import com.nice.czp.htmlsocket.push.ws.util.ByteArray;
+import com.nice.czp.htmlsocket.push.ws.util.Util;
 
 /**
  * 
@@ -21,7 +21,7 @@ public class RFC6455CodecImpl implements IWSCodec {
 
     private boolean isServer;
     private static final int MAX_FRAME_SIZE = 8 * 1024;
-    private ThreadLocal<ByteList> continueData = new ThreadLocal<ByteList>();
+    private ThreadLocal<ByteArray> continueData = new ThreadLocal<ByteArray>();
 
     public RFC6455CodecImpl() {
         this(true);
@@ -46,7 +46,7 @@ public class RFC6455CodecImpl implements IWSCodec {
         byte[] lengthBytes = encodeLength(dataLen);
         int length = 1 + lengthBytes.length + dataLen + (maskData ? IWebsocket.MASK_SIZE : 0);
 
-        ByteList buf = new ByteList(length);
+        ByteArray buf = new ByteArray(length);
         byte frist = frame.opcode;
         if (frame.isFin)
             frist |= 0x80;
@@ -76,10 +76,10 @@ public class RFC6455CodecImpl implements IWSCodec {
         byte lengthCode = buf.get();
         byte opcode = (byte) (start & 0x7f);
         boolean rsvBitSet = decodeRSV(start);
-        boolean isFin = FrameUtil.isBitSet(start, 7);
+        boolean isFin = Util.isBitSet(start, 7);
         boolean hasmask = (lengthCode & 0x80) == 0x80;
         WSFrameType frameType = WSFrameType.from(start);
-        boolean controlFrame = FrameUtil.isControlFrame(opcode);
+        boolean controlFrame = Util.isControlFrame(opcode);
 
         if (rsvBitSet) {
             throw new ProtocolError(IWebsocket.PROTOCOL, "RSV bit(s) doesn't support");
@@ -138,9 +138,9 @@ public class RFC6455CodecImpl implements IWSCodec {
         }
         /* 如果不是结束帧,则opcode必须为TXT BIN CONNINUE */
         if (!isFin) {
-            ByteList list = continueData.get();
+            ByteArray list = continueData.get();
             if (list == null) {
-                list = new ByteList();
+                list = new ByteArray();
                 continueData.set(list);
             }
             list.write(data);
@@ -148,8 +148,8 @@ public class RFC6455CodecImpl implements IWSCodec {
             return WSMessage.CONTINUE;
         }
         if (isFin) {
-            if (FrameUtil.isContinueFrame(opcode) && continueData.get() != null) {
-                ByteList list = continueData.get();
+            if (Util.isContinueFrame(opcode) && continueData.get() != null) {
+                ByteArray list = continueData.get();
                 /* 把最后一帧添加到缓存 */
                 list.write(data);
                 data = list.toByteArray();
@@ -178,8 +178,8 @@ public class RFC6455CodecImpl implements IWSCodec {
     }
 
     private boolean decodeRSV(byte start) {
-        boolean rsvBitSet = FrameUtil.isBitSet(start, 6) || FrameUtil.isBitSet(start, 5)
-                || FrameUtil.isBitSet(start, 4);
+        boolean rsvBitSet = Util.isBitSet(start, 6) || Util.isBitSet(start, 5)
+                || Util.isBitSet(start, 4);
         return rsvBitSet;
     }
 

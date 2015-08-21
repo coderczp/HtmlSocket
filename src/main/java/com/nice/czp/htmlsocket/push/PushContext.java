@@ -10,13 +10,14 @@ import org.slf4j.LoggerFactory;
 
 import com.nice.czp.htmlsocket.api.ICodec;
 import com.nice.czp.htmlsocket.api.IConnListener;
-import com.nice.czp.htmlsocket.api.ISubscriber;
 import com.nice.czp.htmlsocket.api.PushError;
+import com.nice.czp.htmlsocket.push.ws.impl.ProtocolManager;
 
 public class PushContext {
 
     private static final Logger log = LoggerFactory.getLogger(PushContext.class);
     private CopyOnWriteArrayList<IConnListener> connListeners;
+    private ProtocolManager protocolManager;
     private MessageCenter messageCenter;
     private PushSerConfig config;
 
@@ -49,13 +50,21 @@ public class PushContext {
         connListeners.remove(connListener);
     }
 
+    public ProtocolManager getProtocolManager() {
+        return protocolManager;
+    }
+
+    public void setProtocolManager(ProtocolManager protocolManager) {
+        this.protocolManager = protocolManager;
+    }
+
     public Collection<IConnListener> getConnListeners() {
         return Collections.unmodifiableList(connListeners);
     }
 
-    public PushError beforeConn(ISubscriber sub, Map<String, String[]> params) {
+    public PushError beAddSub(Map<String, String[]> params) {
         for (IConnListener conn : connListeners) {
-            PushError error = conn.beforeConnect(sub, params);
+            PushError error = conn.beAddSub(params);
             if (error != null) {
                 log.info("{} terminate request", conn);
                 return error;

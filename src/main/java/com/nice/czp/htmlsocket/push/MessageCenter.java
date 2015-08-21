@@ -6,11 +6,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.glassfish.grizzly.Connection;
-import org.glassfish.grizzly.http.server.HttpServerFilter;
-import org.glassfish.grizzly.http.server.HttpServerProbe.Adapter;
-import org.glassfish.grizzly.http.server.Request;
-import org.glassfish.grizzly.http.server.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +20,7 @@ import com.nice.czp.htmlsocket.api.ISubscriber;
  * @author coder_czp@126.com-2015年8月8日
  * 
  */
-public class MessageCenter extends Adapter {
+public class MessageCenter {
 
 	private static Logger log = LoggerFactory.getLogger(MessageCenter.class);
 	private static final int cpus = Runtime.getRuntime().availableProcessors();
@@ -108,26 +103,6 @@ public class MessageCenter extends Adapter {
 
 	public Collection<ThreadMap> getSubscribers() {
 		return Collections.unmodifiableCollection(maps);
-	}
-
-	@Override
-	@SuppressWarnings("rawtypes")
-	public void onRequestCompleteEvent(HttpServerFilter filter,
-			Connection connection, Response response) {
-		try {
-			Request request = response.getRequest();
-			String id = request.getParameter("id");
-			String holdConn = request.getParameter("hold");
-			if (id != null && !"false".equals(holdConn)) {
-				int port = request.getRemotePort();
-				String ip = request.getRemoteAddr();
-				if (removeSubscriber(Long.valueOf(id))) {
-					log.info("long poll client:[{}:{}] close", ip, port);
-				}
-			}
-		} catch (Exception e) {
-			log.error("remove long poll client error", e);
-		}
 	}
 
 	public boolean removeSubscriber(long subId, boolean callUnSubMethod) {

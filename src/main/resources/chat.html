@@ -12,9 +12,10 @@
 	<br>
 	<textarea rows="30" cols="50" id="recv"></textarea>
 </body>
-<script src="./HtmlSocket.mini.js"></script>
+<script src="./ajax.js"></script>
+<script src="./HtmlSocket.js"></script>
 <script type="text/javascript">
-	var id = '100';
+	var id = '123';
 	var topic = 'topicy';
 	var url = 'http://127.0.0.1:8877/';
 	var setting = new HtmlSockect.Settings(url, id, topic);
@@ -22,10 +23,7 @@
 		recv.value = recv.value + '\n' + res.from + ':' + res.data;
 	};
 	setting.encode = function(msg) {
-		var data = {
-			'data' : msg
-		};
-		return data;
+		return msg;
 	}
 	setting.decode = function(data) {
 		if (typeof (data) === 'string')

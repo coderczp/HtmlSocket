@@ -3,7 +3,6 @@ package com.nice.czp.htmlsocket.push;
 import java.util.Map;
 
 import com.nice.czp.htmlsocket.api.IConnListener;
-import com.nice.czp.htmlsocket.api.ISubscriber;
 import com.nice.czp.htmlsocket.api.PushError;
 
 /**
@@ -21,7 +20,7 @@ public class PreCheckListener implements IConnListener {
     }
 
     @Override
-    public PushError beforeConnect(ISubscriber sub, Map<String, String[]> params) {
+    public PushError beAddSub(Map<String, String[]> params) {
         String[] subIds = params.get("id");
         if (params.get("topic") == null || subIds == null) {
             return PushError.IDERR;

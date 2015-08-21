@@ -1,16 +1,22 @@
 package com.nice.czp.htmlsocket.push.ws.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.glassfish.grizzly.filterchain.FilterChainContext;
+import org.glassfish.grizzly.Connection;
+import org.glassfish.grizzly.memory.Buffers;
+import org.glassfish.grizzly.utils.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nice.czp.htmlsocket.push.ws.itf.AbstractWebscoket;
+import com.nice.czp.htmlsocket.push.PushContext;
 import com.nice.czp.htmlsocket.push.ws.itf.IWSCodec;
-import com.nice.czp.htmlsocket.push.ws.util.FrameUtil;
+import com.nice.czp.htmlsocket.push.ws.itf.IWebsocket;
+import com.nice.czp.htmlsocket.push.ws.itf.WSFrameType;
+import com.nice.czp.htmlsocket.push.ws.itf.WSMessage;
+import com.nice.czp.htmlsocket.push.ws.itf.WSListener;
 
 /**
  * http://jinnianshilongnian.iteye.com/blog/1899876
@@ -18,66 +24,117 @@ import com.nice.czp.htmlsocket.push.ws.util.FrameUtil;
  * @author coder_czp@126.com-2015年8月17日
  * 
  */
-public class WebSocketImpl extends AbstractWebscoket {
+@SuppressWarnings("rawtypes")
+public class WebSocketImpl implements IWebsocket {
 
-    private IWSCodec codec;
-    private String remoteAddress;
-    private static Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
+	protected IWSCodec codec;
+	protected PushContext context;
+	protected Connection connection;
+	protected HashMap<String, Object> ext = new HashMap<String, Object>();
+	protected List<WSListener> listeners = new CopyOnWriteArrayList<WSListener>();
+	private static final Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
 
-    public WebSocketImpl(FilterChainContext ctx, IWSCodec codec) {
-        super(ctx.getConnection());
-        this.codec = codec;
-    }
+	public WebSocketImpl(Connection conn, PushContext context, IWSCodec codec) {
+		this.connection = conn;
+		this.context = context;
+		this.codec = codec;
+	}
 
-    @Override
-    public String getRemoteAddress() {
-        return remoteAddress;
-    }
+	@Override
+	public String getRemoteAddress() {
+		return connection.getPeerAddress().toString();
+	}
 
-    @Override
-    public String toString() {
-        return remoteAddress;
-    }
+	@Override
+	public String toString() {
+		return getRemoteAddress();
+	}
 
-    @Override
-    public IWSCodec getCodec() {
-        return codec;
-    }
+	@Override
+	public IWSCodec getCodec() {
+		return codec;
+	}
 
-    @Override
-    public Map<String, String> getHandShakePack(Map<String, String> requestParams) {
-        Map<String, String> handShake = new HashMap<String, String>();
-        remoteAddress = requestParams.get(REMOTE_ADDRESS);
-        String cliKey = requestParams.get(SEC_WS_KEY_HEADER);
+	@Override
+	public void send(Object data) {
+		if (data instanceof String) {
+			byte[] bytes = ((String) data).getBytes(Charsets.UTF8_CHARSET);
+			writeMessage(WSMessage.create(WSFrameType.TXT, bytes, true));
+			return;
+		}
+		if (data instanceof byte[]) {
+			writeMessage(WSMessage.create(WSFrameType.BIN, (byte[]) data, true));
+			return;
+		}
+		if (data instanceof WSMessage) {
+			writeMessage((WSMessage) data);
+			return;
+		}
+		throw new RuntimeException("except string,byte[],WSMessage,get:" + data);
+	}
 
-        handShake.put("Sec-WebSocket-Accept", FrameUtil.generateSecKey(cliKey));
-        handShake.put("Connection", "Upgrade");
-        handShake.put("Upgrade", "websocket");
-        handShake.put("Server", SERVER_NAME);
+	@Override
+	public void dipatchMessage(WSMessage result) {
+		for (WSListener listener : listeners) {
+			try {
+				boolean isText = result.frameType == WSFrameType.TXT;
+				listener.onWSMessage(result.data, isText);
+			} catch (Exception e) {
+				log.error("{} process message err", listener, e);
+			}
+		}
+	}
 
-        initQueryParams(requestParams.get(QUERY_STRING));
-        fireConnected();
+	@Override
+	public void onDisconnect(int code, String info) {
+		for (WSListener listener : listeners) {
+			try {
+				listener.onClosed(this, code, info);
+			} catch (Exception e) {
+				log.error("{} closed event error", listener, e);
+			}
+		}
+	}
 
-        return handShake;
-    }
+	@Override
+	public void close(int code, String info) {
+		if (connection.isOpen()) {
+			System.out.println("code:" + code + " info:" + info);
+			writeMessage(WSMessage.createClose(code, info));
+			connection.closeSilently();
+		}
+		onDisconnect(code, info);
+	}
 
-    /* queryString :id=xx&topic=xx .. */
-    private void initQueryParams(String queryString) {
-        StringTokenizer tk = new StringTokenizer(queryString, "&");
-        int index;
-        String key;
-        String[] value;
-        String keyValue;
-        while (tk.hasMoreTokens()) {
-            keyValue = tk.nextToken();
-            index = keyValue.indexOf("=");
-            if (index > 0) {
-                key = keyValue.substring(0, index);
-                value = keyValue.substring(index + 1).split(",");
-                params.put(key, value);
-            } else {
-                log.error("error param {}", keyValue);
-            }
-        }
-    }
+	protected Connection ensureConnIsOpen() {
+		if (connection == null || !connection.isOpen()) {
+			throw new IllegalStateException("Connection is null or closed");
+		}
+		return connection;
+	}
+
+
+	protected void writeMessage(WSMessage msg) {
+		IWSCodec codec = getCodec();
+		byte[] encode = codec.encode(msg);
+		Connection<?> conn = ensureConnIsOpen();
+		conn.write(Buffers.wrap(conn.getMemoryManager(), encode));
+	}
+
+
+	@Override
+	public boolean addListener(WSListener listener) {
+		return listeners.add(listener);
+	}
+
+	@Override
+	public void onConnected(Map<String, String[]> params) {
+		for (WSListener listener : listeners) {
+			try {
+				listener.onConnected(this, params);
+			} catch (Exception e) {
+				log.error("{} connect event error", listener, e);
+			}
+		}
+	}
 }

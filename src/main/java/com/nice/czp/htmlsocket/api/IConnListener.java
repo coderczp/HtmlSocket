@@ -15,13 +15,11 @@ public interface IConnListener {
      * 是否登录等,返回非空将取消subscriber
      * 的的连接,客户端将收到WSError
      * 
-     * @param subscriber
-     *            将要建立长连接的订阅者
      * @param params
      *            建立连接的参数
      * @return WSError|null
      * 
      */
-    PushError beforeConnect(ISubscriber subscriber, Map<String, String[]> params);
+    PushError beAddSub(Map<String, String[]> params);
 
 }

@@ -7,10 +7,10 @@ package com.nice.czp.htmlsocket.api;
  */
 public class PushError {
 
-    public static final PushError IDERR = new PushError(600, "id or topic is null");
-    public static final PushError TIMEOUT = new PushError(601, "connect timeout");
-    public static final PushError RELOGIN = new PushError(602, "Have logged in");
-    public static final PushError IDNOTNUMBER = new PushError(603, "id isn't a number");
+    public static final PushError IDERR = new PushError(1011, "id or topic is null");
+    public static final PushError TIMEOUT = new PushError(1011, "connect timeout");
+    public static final PushError RELOGIN = new PushError(1011, "Have logged in");
+    public static final PushError IDNOTNUMBER = new PushError(1011, "id isn't a number");
 
     private int code;
     private String desc;

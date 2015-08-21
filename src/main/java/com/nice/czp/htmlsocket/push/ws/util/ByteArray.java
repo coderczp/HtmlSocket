@@ -7,13 +7,13 @@ import java.io.ByteArrayOutputStream;
  * @author coder_czp@126.com-2015年8月18日
  * 
  */
-public class ByteList extends ByteArrayOutputStream {
+public class ByteArray extends ByteArrayOutputStream {
 
-    public ByteList() {
+    public ByteArray() {
         this(32);
     }
 
-    public ByteList(int length) {
+    public ByteArray(int length) {
         super(length);
     }
 
