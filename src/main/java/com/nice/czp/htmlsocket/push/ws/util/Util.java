@@ -54,7 +54,6 @@ public class Util {
         return (byte) (b | (1 << pos));
     }
 
-    @SuppressWarnings("restriction")
     public static String generateSecKey(String clientKey) {
         try {
             sun.misc.BASE64Encoder endoer = new sun.misc.BASE64Encoder();
